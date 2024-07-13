@@ -26,22 +26,6 @@ namespace AURankedPlugin.Plugins.ImpostorChat.EventListeners
             impChat = null;
         }
 
-   
-        /*
-        [EventListener]
-        public void onGameStarted(IGameStartedEvent e)
-        {
-            //string path = Path.Combine(Environment.CurrentDirectory, "plugins", "MatchLogs", _config.seasonName);
-            //int Id = FileUtils.RetrieveMatchIDFromFile(path) + 1;
-            //var gameData = new GameData(_logger, e.Game.Code, -1);
-            //foreach (var player in e.Game.Players)
-            //{
-            //    gameData.AddPlayer(player, player.Character.PlayerInfo.IsImpostor);
-            //}
-            //gameDataMap.Add(e.Game.Code, gameData);
-            
-        }
-        */
 
         
         [EventListener]
