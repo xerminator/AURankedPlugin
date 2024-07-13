@@ -55,7 +55,7 @@ namespace AURankedPlugin.Models
             eventsLog = new EventsLog(code);
             _logger = null;
             matchId = -1;
-            gameOptions = new NormalGameOptions();
+            gameOptions = options;
         }
 
         public void setOptions(NormalGameOptions options) 
