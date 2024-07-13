@@ -51,20 +51,10 @@ namespace AURankedPlugin.Plugins.ImpostorChat.EventListeners
             GameDataUtils.gameDataMap.Remove(e.Game.Code);
             impChat.Reset();
         }
-        
 
         [EventListener]
-        public async void onPlayerChat(IPlayerChatEvent e)
+        public async void onCommand(IPlayerChatEvent e)
         {
-            if (impChat == null)
-            {
-                impChat = new ImpChat(GameDataUtils.gameDataMap[e.Game.Code]);
-            }
-            if (impChat.active.Count == 0) 
-            {
-                impChat.AddPlayers(e.Game.Players.ToList());
-            }
-
             bool startsWithPrefix = e.Message.StartsWith("/") || e.Message.StartsWith("?");
             if (!startsWithPrefix) return;
             if (e.Game.GameState == GameStates.NotStarted) return;
@@ -74,7 +64,6 @@ namespace AURankedPlugin.Plugins.ImpostorChat.EventListeners
             bool isCommand = true;
             if (e.Message.Length < 2) return;
             List<string> allowed = new List<string> { "//", "??", "/w", "?w", "/say", "?say" };
-            
             if (!allowed.Contains(command))
             {
                 doublePrefix = e.Message.Substring(0, 2).ToLower();
@@ -90,54 +79,47 @@ namespace AURankedPlugin.Plugins.ImpostorChat.EventListeners
                 return;
             }
             e.IsCancelled = true;
-            
-            if (impChat.active[e.ClientPlayer])
-            {
-                impChat.Activate(e.ClientPlayer);
-            } else 
-            {
-                impChat.Deactivate(e.ClientPlayer);
-            }
-
-            var impostors = GameDataUtils.gameDataMap[e.Game.Code].Impostors;
-
-            
-
-            if (!impostors.Contains(e.ClientPlayer))
+            if(!e.ClientPlayer.Character.PlayerInfo.IsImpostor)
             {
                 return;
             }
-            var message = "";
-            switch (command)
+            if (impChat == null)
             {
-                case "//":
-                    message = e.Message.Remove(0, 2);
-                    break;
-                case "??":
-                    message = e.Message.Remove(0, 2);
-                    break;
-                case "/w":
-                    message = e.Message.Remove(0, 3);
-                    break;
-                case "?w":
-                    message = e.Message.Remove(0, 3);
-                    break;
-                default:
-                    message = e.Message.Remove(0, 5);
-                    break;
+                impChat = new ImpChat(GameDataUtils.gameDataMap[e.Game.Code]);
             }
+            if (impChat.active.Count == 0)
+            {
+                impChat.AddPlayers(e.Game.Players.ToList());
+            }
+            if (impChat.active[e.ClientPlayer])
+            {
+                impChat.Deactivate(e.ClientPlayer);
+            }
+            else
+            {
+                impChat.Activate(e.ClientPlayer);
+            }
+        }
 
+        [EventListener]
+        public async void onImpostorChat(IPlayerChatEvent e) 
+        {
 
+            if (!impChat.active[e.ClientPlayer])
+            {
+                return;
+            }
+            var impostors = GameDataUtils.gameDataMap[e.Game.Code].Impostors;
             foreach (var player in impostors)
             {
                 if (player == null) return;
                 if (player != e.ClientPlayer)
                 {
                     //string reciever_msg = "From " + e.ClientPlayer.Character.PlayerInfo.PlayerName + ":\n" + "<#c51111>" + message;
-                    string reciever_msg = "<#c51111>" + message;
+                    string reciever_msg = "<#c51111>" + e.Message;
                     if (e.ClientPlayer.Character.PlayerInfo.IsDead && player.Character != null)
                     {
-                        reciever_msg = "From " + e.ClientPlayer.Character.PlayerInfo.PlayerName + ":\n" + "<#c51111>" + message;
+                        reciever_msg = "From " + e.ClientPlayer.Character.PlayerInfo.PlayerName + ":\n" + "<#c51111>" + e.Message;
                         await player.Character.SendChatToPlayerAsync(reciever_msg, player.Character);
                     }
                     else
@@ -148,6 +130,10 @@ namespace AURankedPlugin.Plugins.ImpostorChat.EventListeners
             }
 
 
+
+
+
         }
+        
     }
 }
